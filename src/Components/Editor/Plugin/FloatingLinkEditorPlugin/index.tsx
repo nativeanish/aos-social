@@ -32,9 +32,9 @@ import { Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import { getSelectedNode } from "../../../../utils/getSelectedNode";
-import { setFloatingElemPositionForLinkEditor } from "../../../../utils/setFloatingElemPositionForLinkEditor";
-import { sanitizeUrl } from "../../../../utils/url";
+import { getSelectedNode } from "../../../../utils/editor/getSelectedNode";
+import { setFloatingElemPositionForLinkEditor } from "../../../../utils/editor/setFloatingElemPositionForLinkEditor";
+import { sanitizeUrl } from "../../../../utils/editor/url";
 import { MdCancel, MdDone, MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import { Tooltip } from "@nextui-org/react";

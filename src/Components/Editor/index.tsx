@@ -22,7 +22,7 @@ import { AutoLinkNode, LinkNode } from "@lexical/link";
 import LinkPlugin from "./Plugin/LinkPlugin";
 import FloatingLinkEditorPlugin from "./Plugin/FloatingLinkEditorPlugin";
 import LexicalAutoLinkPlugin from "./Plugin/AutoLinkPlugin";
-import { CAN_USE_DOM } from "../../utils/DOM";
+import { CAN_USE_DOM } from "../../utils/editor/DOM";
 import { useEffect, useState } from "react";
 import { EmojiNode } from "./Plugin/Emoji/EmojiNode";
 import EmojisPlugin from "./Plugin/Emoji/EmojiPlugin";
