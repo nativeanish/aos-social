@@ -132,8 +132,7 @@ function IImage() {
               Yes I look that, Register
             </Button>
             <motion.p className="text-xs">
-              Image less than 107KiB are free to upload otherwise get Turbo
-              Token
+              Try to upload an image with less than 1MB of File.
             </motion.p>
           </motion.div>
         </motion.div>

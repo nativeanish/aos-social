@@ -2,9 +2,7 @@ import { message, createDataItemSigner, result } from "@permaweb/aoconnect";
 import { ID } from ".";
 import useAccount from "../../store/useAccount";
 import useIntroField from "../../store/Onboard/useIntroField";
-import { upload_image } from "../turbo";
 import useAlertLoading from "../../store/useAlertLoading";
-// const ID = "ggW1uc7p1DDBbkZ-ivkz221h7rcEcg-EWTntFhiXWts";
 export const check_user_exits = () => {
   message({
     process: ID,
@@ -49,9 +47,8 @@ export const check_username = async (username: string) => {
 export const register = async () => {
   const name = useIntroField.getState().name;
   const username = useIntroField.getState().username;
-  const type = useIntroField.getState().type;
   const data = useIntroField.getState().data;
-  if (data?.length && type.length && name.length && username.length) {
+  if (data?.length && name.length && username.length) {
     useAlertLoading.setState({ show: true });
     useAlertLoading.setState({
       title: "Registering",
@@ -59,7 +56,36 @@ export const register = async () => {
     useAlertLoading.setState({
       description: "Registering User",
     });
-    const id = await upload_image(data, type);
+    try {
+      const _data = await message({
+        process: ID,
+        signer: createDataItemSigner(window.arweaveWallet),
+        tags: [
+          { name: "Action", value: "register_user" },
+          { name: "name", value: name },
+          { name: "username", value: username },
+        ],
+        data: data,
+      });
+      const _data2 = await result({
+        process: ID,
+        message: _data,
+      });
+      const _data3 = JSON.parse(_data2.Messages[0].Data);
+      console.log(_data3);
+      if (_data3.status) {
+        useAlertLoading.setState({ show: false });
+        return true;
+      } else {
+        useAlertLoading.setState({ show: false });
+        return false;
+      }
+    } catch (err) {
+      console.log(err);
+      useAlertLoading.setState({ show: false });
+      return false;
+    }
+  } else {
     return false;
   }
 };

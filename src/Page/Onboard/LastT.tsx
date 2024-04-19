@@ -65,14 +65,14 @@ function LastT() {
           >
             You will be redirected to home in 5 seconds or redirect to{" "}
             <a
-              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 after:content-['_↗']"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 after:content-['_🏠'] cursor-pointer"
               onClick={() => navigate("/home")}
             >
               home
             </a>{" "}
             or go to your{" "}
             <a
-              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 after:content-['_↗']"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 after:content-['_👤'] cursor-pointer"
               onClick={() => goToSubdomain()}
             >
               profile
