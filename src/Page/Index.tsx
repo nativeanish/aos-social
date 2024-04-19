@@ -3,12 +3,28 @@ import img from "../image/arLogo.png";
 import arweave from "../image/arweave.svg";
 import { useEffect } from "react";
 import { checkConnection, connect } from "../utils/arconnect";
+import useAddress from "../store/useAddress";
+import { check_user_exits } from "../utils/ao/user";
+import useAccount from "../store/useAccount";
+import { useNavigate } from "react-router-dom";
 function Index() {
+  const address = useAddress((state) => state.address);
+  const account = useAccount((state) => state.account);
+  const navigate = useNavigate();
   useEffect(() => {
     window.addEventListener("arweaveWalletLoaded", () => {
       checkConnection();
     });
-  }, []);
+    if (address && address.length && account === null) {
+      check_user_exits();
+    }
+    if (address && address.length && !account) {
+      navigate("/onboard");
+    }
+    if (address && address.length && account) {
+      console.log("Account Register");
+    }
+  }, [address]);
   return (
     <div className="relative min-h-screen min-w-screen">
       <div className="absolute inset-0 flex justify-center items-center ">
