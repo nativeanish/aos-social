@@ -9,12 +9,6 @@ interface State {
   set_username: (e: string) => void;
   img: null | string;
   set_img: (e: string) => void;
-  follower: null | Array<{ address: string }>;
-  set_follower: (e: Array<{ address: string }>) => void;
-  following: null | Array<{ address: string }>;
-  set_following: (e: Array<{ address: string }>) => void;
-  articles: null | Array<string>;
-  set_articles: (e: Array<string>) => void;
 }
 
 const useAccount = create<State>((set) => ({
@@ -33,18 +27,6 @@ const useAccount = create<State>((set) => ({
   img: null,
   set_img(e) {
     set({ img: e });
-  },
-  follower: null,
-  set_follower(e) {
-    set({ follower: e });
-  },
-  following: null,
-  set_following(e) {
-    set({ following: e });
-  },
-  articles: null,
-  set_articles(e) {
-    set({ articles: e });
   },
 }));
 export default useAccount;

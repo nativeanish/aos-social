@@ -3,26 +3,30 @@ import { ID } from ".";
 import useAccount from "../../store/useAccount";
 import useIntroField from "../../store/Onboard/useIntroField";
 import useAlertLoading from "../../store/useAlertLoading";
-export const check_user_exits = () => {
-  message({
+export const check_user_exits = async () => {
+  const _data = await message({
     process: ID,
     signer: createDataItemSigner(window.arweaveWallet),
     tags: [{ name: "Action", value: "check_user_exist" }],
-  }).then((message) => {
-    result({
-      process: ID,
-      message,
-    }).then((data) => {
-      if (data.Messages[0].Data) {
-        const _data = JSON.parse(data.Messages[0].Data);
-        if (_data.status) {
-          useAccount.setState({ account: true });
-        } else {
-          useAccount.setState({ account: false });
-        }
-      }
-    });
   });
+  const data = await result({
+    process: ID,
+    message: _data,
+  });
+  if (data.Messages[0].Data) {
+    const _data = JSON.parse(data.Messages[0].Data);
+    console.log(_data);
+    if (_data.status) {
+      console.log("Sending data");
+      useAccount.setState({ account: true });
+      return true;
+    } else {
+      useAccount.setState({ account: false });
+      return false;
+    }
+  } else {
+    return false;
+  }
 };
 export const check_username = async (username: string) => {
   const message_id = await message({
@@ -85,6 +89,29 @@ export const register = async () => {
       useAlertLoading.setState({ show: false });
       return false;
     }
+  } else {
+    return false;
+  }
+};
+
+export const get = async () => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [{ name: "Action", value: "get" }],
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  console.log(_data);
+  if (_data.status) {
+    useAccount.setState({ account: true });
+    useAccount.setState({ img: _data.data.image });
+    useAccount.setState({ name: _data.data.name });
+    useAccount.setState({ username: _data.data.username });
+    return true;
   } else {
     return false;
   }

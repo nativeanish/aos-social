@@ -1,4 +1,5 @@
 Users = Users or {}
+Post = Post or {}
 
 function Username_exists(username)
     for key, value in pairs(Users) do
@@ -86,4 +87,73 @@ Handlers.add('get_user',Handlers.utils.hasMatchingTag("Action","get_user"), func
     end
     local result = string.format(json.encode({status = 0, data = "Username not Registered"}))
     Handlers.utils.reply(result)(msg)
+end)
+
+Handlers.add('add_post',Handlers.utils.hasMatchingTag("Action","add_post"), function (msg)
+    local json = require('json')
+    if (Users[msg.From] == nil) then
+        local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+    assert(type(msg.Data) == "string" and msg.Data ~= nil,"Post Data is not available")
+    assert(type(msg.Tags.time) == "string" and msg.Tags.time ~= nil,"Time is not available")
+    local base64 = require("base64")
+    local user = Users[msg.From]
+    local str = msg.Tags.time..msg.Data..Users[msg.From].username
+    local id = base64.encode(str,base64.makeencoder("+", "/", "="),true)
+    if id ~= nil then
+        table.insert(Post,{owner = msg.From, data = msg.Data, time = msg.Tags.time, username = user.username, like = {}, comment = {}, id = id})
+        local result = string.format(json.encode({status = 1, data = "Post Added"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    else
+        local result = string.format(json.encode({status = 0, data = "Error in encoding"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+end)
+
+Handlers.add("get_post",Handlers.utils.hasMatchingTag("Action","get_post"), function (msg)
+   local json = require("json")
+   local utils = require("utils")
+    if (Users[msg.From] == nil) then
+        local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+    local posts = utils.filter(function (val)
+        return val.owner == msg.From
+    end,Post)
+    if posts ~= "[]" then
+       local result = string.format(json.encode({status = 1, data = posts}))
+       Handlers.utils.reply(result)(msg)
+       return
+    else
+        local result = string.format(json.encode({status = 0, data = "No Post"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+end)
+
+Handlers.add("get_post_username",Handlers.utils.hasMatchingTag("Action","get_post_username"), function (msg)
+   local json = require("json")
+   local utils = require("utils")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+    local posts = utils.filter(function (val)
+        return val.username == msg.Tags.username
+    end,Post)
+    if posts ~= "[]" then
+       local result = string.format(json.encode({status = 1, data = posts}))
+       Handlers.utils.reply(result)(msg)
+       return
+    else
+        local result = string.format(json.encode({status = 0, data = "No Post"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
 end)

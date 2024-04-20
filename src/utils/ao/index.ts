@@ -1,5 +1,2 @@
 //aos social
-export const ID = "G4bUjZyblxr4SW-dPlJOSZvEFRd9GShbv2I0h-4yF44";
-export const register = async () => {
-  return "fsad";
-};
+export const ID = "6AV5oHpeHV5WyB50v_g6I-Sqt3m_iLd0sCSta5KYZoE";

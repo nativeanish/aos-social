@@ -6,10 +6,7 @@ import Editor from "../Editor";
 function Post() {
   return (
     <>
-      <div
-        className="bg-[#1B2730] p-4 rounded-xl
-      "
-      >
+      <div className="bg-[#1B2730] p-4 rounded-xl">
         <div className="flex flex-row space-x-2">
           <div className="flex-none">
             <Avatar

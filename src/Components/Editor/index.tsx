@@ -27,7 +27,6 @@ import { useEffect, useState } from "react";
 import { EmojiNode } from "./Plugin/Emoji/EmojiNode";
 import EmojisPlugin from "./Plugin/Emoji/EmojiPlugin";
 import EmojiPickerPlugin from "./Plugin/Emoji/EmojiPickerPlugin";
-import { Button } from "@nextui-org/react";
 import Toolbar from "./Toolbar";
 import ImagePlugin from "./Plugin/Image/ImagePlugin";
 import { ImageNode } from "./Plugin/Image/ImageNode";
@@ -35,6 +34,7 @@ import { YoutubeNode } from "./Plugin/Youtube/YoutubeNode";
 import YoutubePlugin from "./Plugin/Youtube/YoutubePlugin";
 import { TweetNode } from "./Plugin/Twitter/TwitterNode";
 import TwitterPlugin from "./Plugin/Twitter/TwitterPlugin";
+import SaveButton from "./Toolbar/SaveButton";
 
 function Editor({ isReadOnly }: { isReadOnly: boolean }) {
   const intitailConfig: InitialConfigType = {
@@ -135,16 +135,7 @@ function Editor({ isReadOnly }: { isReadOnly: boolean }) {
           {!isReadOnly ? (
             <div className="flex flex-row space-x-1 ml-2">
               <Toolbar setIsLinkEditMode={setIsLinkEditMode} />
-              <div>
-                <Button
-                  size="sm"
-                  className="text-md mt-1"
-                  color="primary"
-                  variant="solid"
-                >
-                  Post
-                </Button>
-              </div>
+              <SaveButton />
             </div>
           ) : null}
         </div>

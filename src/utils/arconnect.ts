@@ -26,16 +26,15 @@ export const connect = () => {
   async_connect().then().catch(console.log);
 };
 export const checkConnection = async () => {
-  window.arweaveWallet
-    .getActiveAddress()
-    .then((data) => {
-      if (data.length) {
-        console.log(data);
-        useAddress.getState().setAddress();
-      }
-    })
-    .catch(() => {
-      // useAddress.getState().setAddress();
-      // useAccount.getState().set_Account(false);
-    });
+  try {
+    const data = await window.arweaveWallet.getActiveAddress();
+    if (data && data.length) {
+      useAddress.getState().setAddress();
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };

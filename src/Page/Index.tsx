@@ -13,18 +13,23 @@ function Index() {
   const navigate = useNavigate();
   useEffect(() => {
     window.addEventListener("arweaveWalletLoaded", () => {
-      checkConnection();
+      checkConnection()
+        .then()
+        .catch((err) => console.log(err));
     });
-    if (address && address.length && account === null) {
-      check_user_exits();
+    if (address?.length) {
+      check_user_exits()
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
     }
-    if (address && address.length && !account) {
+    if (address?.length && account === false) {
       navigate("/onboard");
     }
-    if (address && address.length && account) {
-      console.log("Account Register");
+    if (address?.length && account === true) {
+      navigate("/home");
     }
-  }, [address]);
+    console.log(address);
+  }, [address, account]);
   return (
     <div className="relative min-h-screen min-w-screen">
       <div className="absolute inset-0 flex justify-center items-center ">
