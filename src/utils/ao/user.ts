@@ -3,6 +3,7 @@ import { ID } from ".";
 import useAccount from "../../store/useAccount";
 import useIntroField from "../../store/Onboard/useIntroField";
 import useAlertLoading from "../../store/useAlertLoading";
+import { convertSVGToBase64 } from "../svg";
 export const check_user_exits = async () => {
   const _data = await message({
     process: ID,
@@ -13,6 +14,7 @@ export const check_user_exits = async () => {
     process: ID,
     message: _data,
   });
+  console.log(data);
   if (data.Messages[0].Data) {
     const _data = JSON.parse(data.Messages[0].Data);
     console.log(_data);
@@ -69,12 +71,13 @@ export const register = async () => {
           { name: "name", value: name },
           { name: "username", value: username },
         ],
-        data: data,
+        data: convertSVGToBase64(data),
       });
       const _data2 = await result({
         process: ID,
         message: _data,
       });
+      console.log(_data2);
       const _data3 = JSON.parse(_data2.Messages[0].Data);
       console.log(_data3);
       if (_data3.status) {
@@ -105,13 +108,20 @@ export const get = async () => {
       process: ID,
       message: messages,
     });
+    console.log(data);
     const _data = JSON.parse(data.Messages[0].Data);
     console.log(_data);
     if (_data.status) {
       useAccount.setState({ account: true });
-      useAccount.setState({ img: _data.data.image });
+      useAccount.setState({ img: String(_data.data.image) });
       useAccount.setState({ name: _data.data.name });
       useAccount.setState({ username: _data.data.username });
+      useAccount.setState({
+        description:
+          _data.data.description === "<empty>" ? "" : _data.data.description,
+      });
+      useAccount.setState({ follower: _data.data.follower });
+      useAccount.setState({ following: _data.data.following });
       return true;
     } else {
       return false;
@@ -141,6 +151,33 @@ export const get_user_by_username = async (username: string) => {
     } else {
       return false;
     }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export const search = async (username: string) => {
+  try {
+    const messages = await message({
+      process: ID,
+      signer: createDataItemSigner(window.arweaveWallet),
+      tags: [
+        { name: "Action", value: "search" },
+        { name: "param", value: username },
+      ],
+    });
+    const data = await result({
+      process: ID,
+      message: messages,
+    });
+    console.log(data);
+    // const _data = JSON.parse(data.Messages[0].Data);
+    // if (_data.status) {
+    //   return _data.data;
+    // } else {
+    //   return false;
+    // }
   } catch (err) {
     console.log(err);
     return false;

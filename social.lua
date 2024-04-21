@@ -1,7 +1,7 @@
 Users = Users or {}
 Post = Post or {}
 
-function Username_exists(username)
+local function Username_exists(username)
     for key, value in pairs(Users) do
        for field, val in pairs(value) do
             if field == "username" and val == username then
@@ -12,10 +12,62 @@ function Username_exists(username)
     return false
 end
 
+local function Preprocess_data(data)
+    if type(data) == "table" then
+        local cleaned_data = {}
+        for k, v in pairs(data) do
+            if next(v) ~= nil then
+                cleaned_data[k] = v
+            end
+        end
+        return cleaned_data
+    elseif type(data) == "string" then
+        if data == "" then
+            return "<empty>"
+        end
+    end
+    return data
+end
+
+local function Search(param)
+    local maps = {}
+    for key, value in pairs(Users) do
+       for field, val in pairs(value) do
+            if field == "username" and val == param then
+                table.insert(maps,value)
+            end
+        end
+    end
+    for key, value in pairs(Post) do
+       for field, val in pairs(value) do
+            if field == "name" and val == param then
+                table.insert(maps,value)
+            end
+        end
+    end
+    return maps
+end
 Handlers.add('check_user_exist',Handlers.utils.hasMatchingTag("Action","check_user_exist"), function (msg)
     local json = require('json')
     if Users[msg.From] ~= nil then
-        local result = string.format(json.encode({status = 1, data = Users[msg.From]}))
+        local user = Users[msg.From]
+        local username = user.username
+        local name = user.name
+        local image = user.image
+        local following = Preprocess_data(user.following)
+        local follower = Preprocess_data(user.follower)
+        local description = Preprocess_data(user.description)
+        local notification = Preprocess_data(user.notification)
+        local data = {
+            username = username,
+            name = name,
+            image = image,
+            following = following,
+            follower = follower,
+            description = description,
+            notification = notification
+        }
+        local result = json.encode({status = 1, data = data})
         Handlers.utils.reply(result)(msg)
         return
     end
@@ -55,6 +107,10 @@ Handlers.add('register_user',Handlers.utils.hasMatchingTag("Action","register_us
     Users[msg.From].username = msg.Tags.username
     Users[msg.From].name = msg.Tags.name
     Users[msg.From].image = msg.Data
+    Users[msg.From].description = ""
+    Users[msg.From].follower = {}
+    Users[msg.From].following = {}
+    Users[msg.From].notification = {}
     local result = string.format(json.encode({status = 1, data = "Account Registered"}))
     Handlers.utils.reply(result)(msg)
 end)
@@ -63,7 +119,23 @@ Handlers.add('get',Handlers.utils.hasMatchingTag("Action","get"), function (msg)
     local json = require('json')
     if(Users[msg.From] ~= nil) then
         local user = Users[msg.From]
-        local result = string.format(json.encode({status = 1, data = {username = user.username, name = user.name, image = user.image}}))
+        local username = user.username
+        local name = user.name
+        local image = user.image
+        local following = Preprocess_data(user.following)
+        local follower = Preprocess_data(user.follower)
+        local description = Preprocess_data(user.description)
+        local notification = Preprocess_data(user.notification)
+        local data = {
+            username = username,
+            name = name,
+            image = image,
+            following = following,
+            follower = follower,
+            description = description,
+            notification = notification
+        }
+        local result = json.encode({status = 1, data = data})
         Handlers.utils.reply(result)(msg)
         return
     end
@@ -78,8 +150,25 @@ Handlers.add('get_user',Handlers.utils.hasMatchingTag("Action","get_user"), func
         for key, value in pairs(Users) do
             for field, val in pairs(value) do
                 if field == "username" and val == msg.Tags.username then
-                    local result = string.format(json.encode({status = 1, data = {username = value.username, name = value.name, image = value.image}}))
-                    Handlers.utils.reply(result)(msg)
+                            local user = Users[key]
+                            local username = user.username
+                            local name = user.name
+                            local image = user.image
+                            local following = Preprocess_data(user.following)
+                            local follower = Preprocess_data(user.follower)
+                            local description = Preprocess_data(user.description)
+                            local notification = Preprocess_data(user.notification)
+        local data = {
+            username = username,
+            name = name,
+            image = image,
+            following = following,
+            follower = follower,
+            description = description,
+            notification = notification
+        }
+        local result = json.encode({status = 1, data = data})
+        Handlers.utils.reply(result)(msg)
                     return
                 end
             end
@@ -170,6 +259,9 @@ Handlers.add("like",Handlers.utils.hasMatchingTag("Action","like"), function (ms
    end,Post)
     if posts ~= "[]" then
        table.insert(posts[1].like,msg.From)
+       if Users[msg.From].username ~= posts[1].username then
+        table.insert(Users[posts[1].owner].notification,{data="like",username = Users[msg.From].username, seen=false})
+       end
        local result = string.format(json.encode({status = 1, data = "Post Liked"}))
        Handlers.utils.reply(result)(msg)
        return
@@ -195,6 +287,9 @@ Handlers.add("comment",Handlers.utils.hasMatchingTag("Action","comment"), functi
     end,Post)
     if posts ~= "[]" then
        table.insert(posts[1].comment,{username = Users[msg.From].username, data = msg.Data})
+       if Users[msg.From].username ~= posts[1].username then
+        table.insert(Users[Post[posts[1].owner].username].notification,{data="comment",username = Users[msg.From].username, seen = false})
+       end
        local result = string.format(json.encode({status = 1, data = "Post Commented"}))
        Handlers.utils.reply(result)(msg)
        return
@@ -203,4 +298,67 @@ Handlers.add("comment",Handlers.utils.hasMatchingTag("Action","comment"), functi
         Handlers.utils.reply(result)(msg)
         return
     end
+end)
+
+Handlers.add("update",Handlers.utils.hasMatchingTag("Action","update"), function (msg)
+   local json = require("json")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   local user = Users[msg.From]
+   if(msg.Tags.username ~= nil) then
+       user.username = msg.Tags.username
+   end
+   if(msg.Tags.name ~= nil) then
+       user.name = msg.Tags.name
+   end
+   if(msg.Tags.description ~= nil) then
+       user.description = msg.Tags.description
+   end
+   local result = string.format(json.encode({status = 1, data = "Account Updated"}))
+   Handlers.utils.reply(result)(msg)
+end)
+
+Handlers.add("follow",Handlers.utils.hasMatchingTag("Action","follow"), function (msg)
+   local json = require("json")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   if (Users[msg.Tags.username] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   table.insert(Users[msg.From].following,msg.Tags.username)
+   table.insert(Users[msg.Tags.username].follower,Users[msg.From].username)
+   table.insert(Users[msg.Tags.username].notification,{data="follow",username = Users[msg.From].username, seen =false})
+   local result = string.format(json.encode({status = 1, data = "Followed"}))
+   Handlers.utils.reply(result)(msg)
+end)
+
+Handlers.add("search",Handlers.utils.hasMatchingTag("Action","search"), function (msg)
+   local json = require("json")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   assert(type(msg.Tags.param) == "string" and msg.Tags.param ~= nil,"param is missing")
+   local utils = require(".utils")
+   local tmp_user = Search(msg.Tags.param)
+    if tmp_user ~= "[]" then
+        local send_user = {}
+        for i = 1, #tmp_user do
+            table.insert(send_user,{username = tmp_user[i].username, name = tmp_user[i].name, image = tmp_user[i].image})
+        end
+        local result = string.format(json.encode({status = 1, data = Preprocess_data(send_user)}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+    local result = string.format(json.encode({status = 0, data = "No User"}))
+    Handlers.utils.reply(result)(msg)
 end)

@@ -3,6 +3,7 @@
 import { Avatar } from "@nextui-org/react";
 import Editor from "../Editor";
 import useAccount from "../../store/useAccount";
+import { convertSVGToBase64 } from "../../utils/svg";
 
 function Post() {
   const img = useAccount((state) => state.img);
@@ -13,7 +14,11 @@ function Post() {
       <div className="bg-[#1B2730] p-4 rounded-xl">
         <div className="flex flex-row space-x-2">
           <div className="flex-none">
-            <Avatar src={img?.length ? img : ""} size="md" radius="sm" />
+            <Avatar
+              src={img?.length ? convertSVGToBase64(img) : ""}
+              size="md"
+              radius="sm"
+            />
           </div>
           <div className="flex flex-col space-y-2 items-left justify-start w-full">
             <div className="mt-2 flex flex-row space-x-1">

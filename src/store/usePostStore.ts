@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
 export type Pos = {
-  comment: Array<{}>;
+  comment: Array<{ username: string; data: string }>;
   data: string;
   id: string;
-  like: Array<{}>;
+  like: Array<string>;
   owner: string;
   time: string;
   username: string;

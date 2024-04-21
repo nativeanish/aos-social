@@ -35,8 +35,35 @@ import YoutubePlugin from "./Plugin/Youtube/YoutubePlugin";
 import { TweetNode } from "./Plugin/Twitter/TwitterNode";
 import TwitterPlugin from "./Plugin/Twitter/TwitterPlugin";
 import SaveButton from "./Toolbar/SaveButton";
-
-function Editor({ isReadOnly, data }: { isReadOnly: boolean; data?: string }) {
+import { FaRegComment, FaRegHeart } from "react-icons/fa";
+import {
+  Avatar,
+  AvatarGroup,
+  Button,
+  Input,
+  useDisclosure,
+} from "@nextui-org/react";
+import { comment_async, like_async } from "../../utils/ao/post";
+import useAddress from "../../store/useAddress";
+import { FcLike } from "react-icons/fc";
+import ModalLC from "../Template/ModalLC";
+import Commen from "../Template/Commen";
+function Editor({
+  isReadOnly,
+  data,
+  like,
+  comment,
+  id,
+  isComment = false,
+}: {
+  isReadOnly: boolean;
+  data?: string;
+  like?: Array<string>;
+  comment?: Array<{ username: string; data: string }>;
+  id: string;
+  isComment?: boolean;
+}) {
+  const { onClose, isOpen, onOpen, onOpenChange } = useDisclosure();
   const intitailConfig: InitialConfigType = {
     editorState: isReadOnly && data?.toString ? data : null,
     onError: (error) => {
@@ -61,7 +88,7 @@ function Editor({ isReadOnly, data }: { isReadOnly: boolean; data?: string }) {
     ],
     editable: isReadOnly && data?.length ? false : true,
   };
-
+  const address = useAddress((state) => state.address);
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
 
@@ -140,16 +167,121 @@ function Editor({ isReadOnly, data }: { isReadOnly: boolean; data?: string }) {
               </>
             )}
           </div>
-          {!isReadOnly ? (
-            <div className="flex flex-row space-x-1 ml-2">
-              <Toolbar setIsLinkEditMode={setIsLinkEditMode} />
-              <SaveButton />
-            </div>
-          ) : null}
+          {isComment ? null : (
+            <>
+              {!isReadOnly && !data?.length ? (
+                <div className="flex flex-row space-x-1 ml-2">
+                  <Toolbar setIsLinkEditMode={setIsLinkEditMode} />
+                  <SaveButton />
+                </div>
+              ) : (
+                <>
+                  <div className="border-t border-slate-600 py-1"></div>
+                  <div className="flex flex-row items-start text-white text-2xl space-x-4">
+                    <div className="flex flex-row space-x-2 items-center">
+                      {like ? <p className="text-xl">{like.length}</p> : null}
+                      {like && like.filter((e) => e === address).length ? (
+                        <FcLike className="cursor-not-allowed" />
+                      ) : (
+                        <FaRegHeart
+                          className="cursor-pointer"
+                          onClick={() =>
+                            like_async(id)
+                              .then()
+                              .catch((err) => console.log(err))
+                          }
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-row  space-x-2 items-center">
+                      {comment ? (
+                        <p className="text-xl">{comment.length}</p>
+                      ) : null}
+                      <FaRegComment
+                        className="cursor-pointer"
+                        onClick={onOpen}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
+        {data?.length ? (
+          <ModalLC
+            onClose={onClose}
+            title="Comment"
+            Body={
+              <Body onClose={onClose} id={id} data={data} comment={comment} />
+            }
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+          />
+        ) : null}
       </LexicalComposer>
     </>
   );
 }
 
 export default Editor;
+
+const Body = ({
+  id,
+  data,
+  comment,
+}: {
+  onClose: () => void;
+  id: string;
+  data: string;
+  comment: Array<{ username: string; data: string }> | undefined;
+}) => {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const save = () => {
+    if (text.length) {
+      setLoading(true);
+      comment_async(id, text)
+        .then(() => {
+          setLoading(false);
+          setText("");
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    }
+  };
+  return (
+    <div>
+      <div>
+        <Editor isReadOnly={true} data={data} id={id} isComment={true} />
+      </div>
+      <div className="border-t border-slate-600 py-1"></div>
+      <div>
+        <Input
+          label="Comment"
+          type="text"
+          placeholder="Add your Comment"
+          variant="bordered"
+          endContent={
+            <Button size="sm" isDisabled={loading} onClick={() => save()}>
+              save
+            </Button>
+          }
+          value={text}
+          onValueChange={setText}
+          isDisabled={loading}
+        />
+      </div>
+      <div className="border-t border-slate-600 mt-2"></div>
+      <div>
+        {comment?.length
+          ? comment.map((e, i) => (
+              <Commen comment={e.data} username={e.username} key={i} />
+            ))
+          : null}
+      </div>
+    </div>
+  );
+};

@@ -11,10 +11,23 @@ import {
 } from "@nextui-org/react";
 import { SearchIcon } from "./SearchIcon";
 import useAccount from "../../../store/useAccount";
+import React from "react";
+import { search } from "../../../utils/ao/user";
 
 export default function NavBar() {
   const username = useAccount((state) => state.username);
   const image = useAccount((state) => state.img);
+  const form = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      params: { value: string };
+    };
+    if (target.params.value) {
+      search(target.params.value)
+        .then()
+        .catch((err) => console.log(err));
+    }
+  };
   return (
     <Navbar
       isBordered
@@ -33,19 +46,22 @@ export default function NavBar() {
       </NavbarContent>
 
       <NavbarContent as="div" className="items-center" justify="end">
-        <Input
-          classNames={{
-            base: "max-w-full sm:max-w-[10rem] h-10",
-            mainWrapper: "h-full",
-            input: "text-small",
-            inputWrapper:
-              "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
-          }}
-          placeholder="Type to search..."
-          size="sm"
-          startContent={<SearchIcon size={18} />}
-          type="search"
-        />
+        <form onSubmit={form}>
+          <Input
+            classNames={{
+              base: "max-w-full sm:max-w-[10rem] h-10",
+              mainWrapper: "h-full",
+              input: "text-small",
+              inputWrapper:
+                "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
+            }}
+            placeholder="Type to search..."
+            size="sm"
+            startContent={<SearchIcon size={18} />}
+            type="search"
+            name="params"
+          />
+        </form>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar

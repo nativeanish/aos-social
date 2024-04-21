@@ -13,6 +13,8 @@ function Tweet({ props }: Props) {
     username: string;
     image: string;
     name: string;
+    like: [];
+    comment: [];
   } | null>(null);
   useEffect(() => {
     if (props.username) {
@@ -42,7 +44,13 @@ function Tweet({ props }: Props) {
                 </p>
               </div>
               <div className="flex">
-                <Editor isReadOnly={true} data={props.data} />
+                <Editor
+                  isReadOnly={true}
+                  data={props.data}
+                  like={props.like}
+                  comment={props.comment}
+                  id={props.id}
+                />
               </div>
             </div>
           </div>
@@ -55,6 +63,5 @@ export default Tweet;
 
 function convertTimestamp(timestamp: string) {
   const date = new Date(Number(timestamp));
-  console.log(date.toLocaleDateString());
   return date.toLocaleString();
 }

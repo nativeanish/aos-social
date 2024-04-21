@@ -17,7 +17,10 @@ function Home() {
   const username = useAccount((state) => state.username);
   const image = useAccount((state) => state.img);
   const name = useAccount((state) => state.name);
+  const description = useAccount((state) => state.description);
   const post = usePostStore((state) => state.posts);
+  const follower = useAccount((state) => state.follower);
+  const following = useAccount((state) => state.following);
   const navigate = useNavigate();
   useEffect(() => {
     window.addEventListener("arweaveWalletLoaded", async () => {
@@ -59,7 +62,14 @@ function Home() {
       <NavBar />
       <div className="container relative mx-auto flex w-full max-w-8xl flex-auto justify-center sm:px-2 lg:px-8 xl:px-12">
         {image && name && username ? (
-          <UserCard image={image} name={name} username={username} />
+          <UserCard
+            image={image}
+            name={name}
+            username={username}
+            description={description}
+            following={following}
+            follower={follower}
+          />
         ) : null}
         <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16 space-y-10">
           <Post />
