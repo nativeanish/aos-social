@@ -171,13 +171,12 @@ export const search = async (username: string) => {
       process: ID,
       message: messages,
     });
-    console.log(data);
-    // const _data = JSON.parse(data.Messages[0].Data);
-    // if (_data.status) {
-    //   return _data.data;
-    // } else {
-    //   return false;
-    // }
+    const _data = JSON.parse(data.Messages[0].Data);
+    if (_data.status && _data.data.length) {
+      return _data.data;
+    } else {
+      return false;
+    }
   } catch (err) {
     console.log(err);
     return false;

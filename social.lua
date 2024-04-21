@@ -45,6 +45,15 @@ local function Search(param)
             end
         end
     end
+
+    --  for key, value in pairs(Post) do
+    --    for field, val in pairs(value) do
+    --         if (field == "name" and val == param) or (field == "username" and val == param) then
+    --             table.insert(maps,value)
+    --         end
+    --     end
+    -- end
+
     return maps
 end
 Handlers.add('check_user_exist',Handlers.utils.hasMatchingTag("Action","check_user_exist"), function (msg)
