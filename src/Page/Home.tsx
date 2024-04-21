@@ -8,12 +8,16 @@ import useAccount from "../store/useAccount";
 
 import NavBar from "../Components/Page/NavBar.tsx";
 import UserCard from "../Components/Page/UserCard.tsx";
+import { getPost } from "../utils/ao/post.ts";
+import usePostStore from "../store/usePostStore.ts";
+import Tweet from "../Components/Page/Tweet.tsx";
 function Home() {
   const address = useAddress((state) => state.address);
   const account = useAccount((state) => state.account);
   const username = useAccount((state) => state.username);
   const image = useAccount((state) => state.img);
   const name = useAccount((state) => state.name);
+  const post = usePostStore((state) => state.posts);
   const navigate = useNavigate();
   useEffect(() => {
     window.addEventListener("arweaveWalletLoaded", async () => {
@@ -42,6 +46,9 @@ function Home() {
           console.log(data);
         })
         .catch();
+      getPost()
+        .then()
+        .catch((err) => console.log(err));
     }
     if (!address) {
       navigate("/");
@@ -54,8 +61,11 @@ function Home() {
         {image && name && username ? (
           <UserCard image={image} name={name} username={username} />
         ) : null}
-        <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16 ">
+        <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16 space-y-10">
           <Post />
+          {post?.length
+            ? post.map((e, i) => <Tweet props={e} key={i} />)
+            : null}
         </div>
         <div className="hidden xl:sticky xl:top-[4.75rem] xl:-mr-6 xl:block xl:h-[calc(100vh-4.75rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">
           <nav aria-labelledby="on-this-page-title" className="w-56">

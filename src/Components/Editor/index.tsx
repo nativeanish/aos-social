@@ -36,9 +36,9 @@ import { TweetNode } from "./Plugin/Twitter/TwitterNode";
 import TwitterPlugin from "./Plugin/Twitter/TwitterPlugin";
 import SaveButton from "./Toolbar/SaveButton";
 
-function Editor({ isReadOnly }: { isReadOnly: boolean }) {
+function Editor({ isReadOnly, data }: { isReadOnly: boolean; data?: string }) {
   const intitailConfig: InitialConfigType = {
-    editorState: null,
+    editorState: isReadOnly && data?.toString ? data : null,
     onError: (error) => {
       console.log(error);
     },
@@ -59,6 +59,7 @@ function Editor({ isReadOnly }: { isReadOnly: boolean }) {
       YoutubeNode,
       TweetNode,
     ],
+    editable: isReadOnly && data?.length ? false : true,
   };
 
   const [floatingAnchorElem, setFloatingAnchorElem] =
@@ -97,7 +98,14 @@ function Editor({ isReadOnly }: { isReadOnly: boolean }) {
             <RichTextPlugin
               contentEditable={
                 <div ref={onRef}>
-                  <ContentEditable className="p-2 m-2 h-auto border-1 rounded-xl" />
+                  {/* <ContentEditable className="p-2 m-2 h-auto border-1 rounded-xl" /> */}
+                  <ContentEditable
+                    className={
+                      isReadOnly && data?.length
+                        ? "p-2 m-2 h-auto  rounded-xl"
+                        : "p-2 m-2 h-auto border-1 rounded-xl"
+                    }
+                  />
                 </div>
               }
               placeholder={

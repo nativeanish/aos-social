@@ -98,25 +98,23 @@ Handlers.add('add_post',Handlers.utils.hasMatchingTag("Action","add_post"), func
     end
     assert(type(msg.Data) == "string" and msg.Data ~= nil,"Post Data is not available")
     assert(type(msg.Tags.time) == "string" and msg.Tags.time ~= nil,"Time is not available")
-    local base64 = require("base64")
+    local base64 = require(".base64")
     local user = Users[msg.From]
-    local str = msg.Tags.time..msg.Data..Users[msg.From].username
+    local str = (msg.Tags.time..msg.From)
     local id = base64.encode(str,base64.makeencoder("+", "/", "="),true)
     if id ~= nil then
-        table.insert(Post,{owner = msg.From, data = msg.Data, time = msg.Tags.time, username = user.username, like = {}, comment = {}, id = id})
-        local result = string.format(json.encode({status = 1, data = "Post Added"}))
-        Handlers.utils.reply(result)(msg)
-        return
+    table.insert(Post,{owner = msg.From, data = msg.Data, time = msg.Tags.time, username = user.username, like = {}, comment = {}, id = id})
+    local result = string.format(json.encode({status = 1, data = "Post Added"}))
+    Handlers.utils.reply(result)(msg)
     else
-        local result = string.format(json.encode({status = 0, data = "Error in encoding"}))
+        local result = string.format(json.encode({status = 0, data = "Post Not Added, Problem in encryption"}))
         Handlers.utils.reply(result)(msg)
-        return
     end
 end)
 
 Handlers.add("get_post",Handlers.utils.hasMatchingTag("Action","get_post"), function (msg)
    local json = require("json")
-   local utils = require("utils")
+   local utils = require(".utils")
     if (Users[msg.From] == nil) then
         local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
         Handlers.utils.reply(result)(msg)
@@ -138,7 +136,7 @@ end)
 
 Handlers.add("get_post_username",Handlers.utils.hasMatchingTag("Action","get_post_username"), function (msg)
    local json = require("json")
-   local utils = require("utils")
+   local utils = require(".utils")
    if (Users[msg.From] == nil) then
     local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
     Handlers.utils.reply(result)(msg)
@@ -149,6 +147,55 @@ Handlers.add("get_post_username",Handlers.utils.hasMatchingTag("Action","get_pos
     end,Post)
     if posts ~= "[]" then
        local result = string.format(json.encode({status = 1, data = posts}))
+       Handlers.utils.reply(result)(msg)
+       return
+    else
+        local result = string.format(json.encode({status = 0, data = "No Post"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+end)
+
+Handlers.add("like",Handlers.utils.hasMatchingTag("Action","like"), function (msg)
+   local json = require("json")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   assert(type(msg.Tags.id) == "string" and msg.Tags.id ~= nil,"Post id is missing")
+   local utils = require(".utils")
+   local posts = utils.filter(function (val)
+        return val.id == msg.Tags.id
+   end,Post)
+    if posts ~= "[]" then
+       table.insert(posts[1].like,msg.From)
+       local result = string.format(json.encode({status = 1, data = "Post Liked"}))
+       Handlers.utils.reply(result)(msg)
+       return
+    else
+        local result = string.format(json.encode({status = 0, data = "No Post"}))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+end)
+
+Handlers.add("comment",Handlers.utils.hasMatchingTag("Action","comment"), function (msg)
+   local json = require("json")
+   if (Users[msg.From] == nil) then
+    local result = string.format(json.encode({status = 0, data = "Account is not Register"}))
+    Handlers.utils.reply(result)(msg)
+    return
+   end
+   assert(type(msg.Tags.id) == "string" and msg.Tags.id ~= nil,"Post id is missing")
+   assert(type(msg.Data) == "string" and msg.Data ~= nil,"Comment is missing")
+    local utils = require(".utils")
+    local posts = utils.filter(function (val)
+        return val.id == msg.Tags.id
+    end,Post)
+    if posts ~= "[]" then
+       table.insert(posts[1].comment,{username = Users[msg.From].username, data = msg.Data})
+       local result = string.format(json.encode({status = 1, data = "Post Commented"}))
        Handlers.utils.reply(result)(msg)
        return
     else
