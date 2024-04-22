@@ -2,6 +2,7 @@ import { createDataItemSigner, message, result } from "@permaweb/aoconnect";
 import { ID } from ".";
 import usePostStore from "../../store/usePostStore";
 import { get } from "./user";
+import useUserPost from "../../store/useUserPost";
 
 export const savePost = async (args: string) => {
   const messages = await message({
@@ -13,12 +14,12 @@ export const savePost = async (args: string) => {
     ],
     data: args,
   });
-  const data = await result({
+  await result({
     process: ID,
     message: messages,
   });
-  //   const _data = JSON.parse(data.Messages[0].Data);
   await getPost();
+  return true;
 };
 
 export const getPost = async () => {
@@ -59,6 +60,7 @@ export const add_description = async (text: string) => {
 };
 
 export const like_async = async (id: string) => {
+  console.log(id);
   const messages = await message({
     process: ID,
     signer: createDataItemSigner(window.arweaveWallet),
@@ -71,6 +73,7 @@ export const like_async = async (id: string) => {
     process: ID,
     message: messages,
   });
+  console.log(data);
   const _data = JSON.parse(data.Messages[0].Data);
   if (_data.status) {
     await getPost();
@@ -79,6 +82,7 @@ export const like_async = async (id: string) => {
 
 export const comment_async = async (id: string, text: string) => {
   console.log(id);
+  console.log(text);
   const messages = await message({
     process: ID,
     signer: createDataItemSigner(window.arweaveWallet),
@@ -96,5 +100,35 @@ export const comment_async = async (id: string, text: string) => {
   const _data = JSON.parse(data.Messages[0].Data);
   if (_data.status) {
     await getPost();
+    return true;
+  }
+};
+
+export const get_post_username = async (username: string) => {
+  try {
+    const messages = await message({
+      process: ID,
+      signer: createDataItemSigner(window.arweaveWallet),
+      tags: [
+        { name: "Action", value: "get_post_username" },
+        { name: "username", value: username },
+      ],
+    });
+    const data = await result({
+      process: ID,
+      message: messages,
+    });
+    const _data = JSON.parse(data.Messages[0].Data);
+    console.log(_data);
+    if (_data.status) {
+      console.log(_data.data);
+      useUserPost.setState({ posts: _data.data });
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 };

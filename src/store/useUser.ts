@@ -15,21 +15,9 @@ interface State {
   set_follower: (e: Array<{}>) => void;
   following: Array<{}>;
   set_following: (e: Array<{}>) => void;
-  notifications: Array<{
-    data: "follow" | "comment" | "like";
-    username: string;
-    seen: boolean;
-  }>;
-  set_notifications: (
-    e: Array<{
-      data: "follow" | "comment" | "like";
-      username: string;
-      seen: boolean;
-    }>
-  ) => void;
 }
 
-const useAccount = create<State>((set) => ({
+const useUser = create<State>((set) => ({
   account: null,
   set_Account(e) {
     set({ account: e });
@@ -58,9 +46,5 @@ const useAccount = create<State>((set) => ({
   set_following(e) {
     set({ following: e });
   },
-  notifications: [],
-  set_notifications(e) {
-    set({ notifications: e });
-  },
 }));
-export default useAccount;
+export default useUser;

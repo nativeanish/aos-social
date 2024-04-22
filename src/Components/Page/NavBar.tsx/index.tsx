@@ -10,18 +10,26 @@ import {
   Avatar,
   useDisclosure,
   Spinner,
+  Badge,
 } from "@nextui-org/react";
 import { SearchIcon } from "./SearchIcon";
 import useAccount from "../../../store/useAccount";
 import React, { useEffect, useState } from "react";
 import { search } from "../../../utils/ao/user";
 import ModalLC from "../../Template/ModalLC";
+import { useNavigate } from "react-router-dom";
+import { IoMdNotifications } from "react-icons/io";
+import { RiUserFollowFill } from "react-icons/ri";
+import { FcLike } from "react-icons/fc";
+import { FaComment } from "react-icons/fa";
 
 export default function NavBar() {
   const username = useAccount((state) => state.username);
   const image = useAccount((state) => state.img);
+  const notification = useAccount((state) => state.notifications);
   const [param, setParam] = useState("");
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+  const data = useDisclosure();
   const form = (e: React.SyntheticEvent) => {
     e.preventDefault();
     const target = e.target as typeof e.target & {
@@ -30,6 +38,20 @@ export default function NavBar() {
     if (target.params.value) {
       setParam(target.params.value);
       onOpen();
+    }
+  };
+  const navigate = useNavigate();
+  const navi = (e: string) => {
+    if (e === "home") {
+      navigate("/");
+    }
+    if (e === "profile") {
+      navigate(`/@/${username}`);
+    }
+    if (e === "logout") {
+      window.arweaveWallet.disconnect().then(() => {
+        window.location.reload();
+      });
     }
   };
   return (
@@ -66,6 +88,17 @@ export default function NavBar() {
             name="params"
           />
         </form>
+        <div className="flex items-center" onClick={() => data.onOpen()}>
+          <div className="cursor-pointer">
+            <Badge
+              content={notification.filter((e) => e.seen === false).length}
+              color="danger"
+            >
+              <IoMdNotifications size={35} />
+            </Badge>
+          </div>
+        </div>
+
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar
@@ -78,13 +111,26 @@ export default function NavBar() {
               src={image || "/avatars/avatar-1.png"}
             />
           </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="profile" className="h-14 gap-2">
+          <DropdownMenu
+            aria-label="Profile Actions"
+            variant="flat"
+            onSelectionChange={(e) => navi([...e][0] as string)}
+            selectedKeys={[]}
+            selectionMode="single"
+          >
+            <DropdownItem key="profiles" className="h-14 gap-2">
               <p className="font-semibold">Signed in as</p>
               <p className="font-semibold">@{username}</p>
             </DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem key="profiles">My Profile</DropdownItem>
+            <DropdownItem key="home" color="primary">
+              Home
+            </DropdownItem>
+            <DropdownItem key="profile" color="primary">
+              My Profile
+            </DropdownItem>
+            <DropdownItem key="settings" color="primary">
+              My Settings
+            </DropdownItem>
             <DropdownItem key="logout" color="danger">
               Log Out
             </DropdownItem>
@@ -100,6 +146,13 @@ export default function NavBar() {
           Body={<Body onClose={onClose} param={param} />}
         />
       ) : null}
+      <ModalLC
+        onClose={data.onClose}
+        onOpenChange={data.onOpenChange}
+        title="Notification"
+        isOpen={data.isOpen}
+        Body={<ShowNotification notification={notification} />}
+      />
     </Navbar>
   );
 }
@@ -157,7 +210,13 @@ function Body({ onClose, param }: { onClose: () => void; param: string }) {
           <>
             <div className="border-t border-slate-600"></div>
             {data.map((e, i) => (
-              <User key={i} {...e} />
+              <User
+                key={i}
+                username={param}
+                image={e.image}
+                name={e.name}
+                onClose={onClose}
+              />
             ))}
           </>
         ) : null}
@@ -170,14 +229,23 @@ function User({
   username,
   image,
   name,
+  onClose,
 }: {
   username: string;
   image: string;
   name: string;
+  onClose: () => void;
 }) {
+  const navigate = useNavigate();
   return (
     <>
-      <div className="p-2 flex flex-row space-x-6 items-center relative">
+      <div
+        className="p-2 flex flex-row space-x-6 items-center relative cursor-pointer"
+        onClick={() => {
+          onClose();
+          navigate(`/@/${username}`);
+        }}
+      >
         <div className="">
           <Avatar src={image} size="lg" />
         </div>
@@ -187,6 +255,96 @@ function User({
         </div>
       </div>
       <div className="border-t border-slate-600"></div>
+    </>
+  );
+}
+
+function ShowNotification({
+  notification,
+}: {
+  notification: Array<{
+    data: "follow" | "comment" | "like";
+    username: string;
+    seen: boolean;
+  }>;
+}) {
+  return (
+    <div className="flex flex-col items-centers space-y-3">
+      {notification.map((e, i) => (
+        <Sh key={i} data={e.data} username={e.username} seen={e.seen} />
+      ))}
+    </div>
+  );
+}
+
+function Sh({
+  username,
+  data,
+}: {
+  username: string;
+  data: "follow" | "comment" | "like";
+  seen: boolean;
+}) {
+  const naviagate = useNavigate();
+  return (
+    <>
+      {data === "follow" ? (
+        <div className="flex flex-col space-y-2">
+          <div className="flex flex-row items-start space-x-2 text-md">
+            <p>
+              <RiUserFollowFill />
+            </p>
+            <div className="flex flex-row space-x-2">
+              <p
+                className="text-blue-400 cursor-pointer"
+                onClick={() => naviagate(`/@/${username}`)}
+              >
+                @{username}
+              </p>
+              <p>followed you</p>
+            </div>
+          </div>
+          <div className="border borde-1 borde-white"></div>
+        </div>
+      ) : null}
+      {data === "comment" ? (
+        <div className="flex flex-col space-y-2">
+          <div className="flex flex-row items-start space-x-2 text-md">
+            <p>
+              <FaComment />
+            </p>
+            <div className="flex flex-row space-x-2">
+              <p
+                className="text-blue-400 cursor-pointer"
+                onClick={() => naviagate(`/@/${username}`)}
+              >
+                @{username}
+              </p>
+              <p>commented on your post</p>
+            </div>
+          </div>
+          <div className="border borde-1 borde-white"></div>
+        </div>
+      ) : null}
+      {data === "like" ? (
+        <div className="flex flex-col space-y-2">
+          <div className="flex flex-row items-start space-x-2 text-md">
+            <p>
+              <FcLike />
+            </p>
+            <div className="flex flex-row space-x-2">
+              <p
+                className="text-blue-400 cursor-pointer"
+                onClick={() => naviagate(`/@/${username}`)}
+              >
+                @{username}
+              </p>
+              <p>liked your post</p>
+            </div>
+          </div>
+          <div className="border borde-1 borde-white"></div>
+        </div>
+      ) : null}
     </>
   );
 }

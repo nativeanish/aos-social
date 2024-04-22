@@ -7,11 +7,15 @@ import {
   Button,
   useDisclosure,
   Textarea,
+  Spinner,
 } from "@nextui-org/react";
 import { convertSVGToBase64 } from "../../utils/svg";
 import Modals from "../Template/Modals";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { add_description } from "../../utils/ao/post";
+import useAccount from "../../store/useAccount";
+import { MdDone, MdExposurePlus1 } from "react-icons/md";
+import { _follow, get_user_by_username } from "../../utils/ao/user";
 function UserCard({
   image,
   name,
@@ -19,6 +23,7 @@ function UserCard({
   description,
   following,
   follower,
+  viewOnly = false,
 }: {
   image: string;
   name: string;
@@ -26,8 +31,30 @@ function UserCard({
   description: string | null;
   following: Array<{}>;
   follower: Array<{}>;
+  viewOnly?: boolean;
 }) {
   const { onClose, isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isFollowing, setFollowing] = useState(false);
+  const follow = () => {
+    console.log("Started Following");
+    setFollowing(true);
+    _follow(username)
+      .then((data) => {
+        if (data) {
+          setFollowing(false);
+          get_user_by_username(username)
+            .then()
+            .catch((err) => console.log(err));
+        } else {
+          setFollowing(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setFollowing(false);
+      });
+  };
+  const _username = useAccount((state) => state.username);
   return (
     <div className="hidden lg:relative lg:block lg:flex-none ml-5">
       <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden"></div>
@@ -59,9 +86,13 @@ function UserCard({
                 <p>{description}</p>
               </>
             ) : (
-              <div className="flex justify-center">
-                <Button onClick={onOpen}>Add Description</Button>
-              </div>
+              <>
+                {!viewOnly ? (
+                  <div className="flex justify-center">
+                    <Button onClick={onOpen}>Add Description</Button>
+                  </div>
+                ) : null}
+              </>
             )}
           </CardBody>
           <CardFooter className="flex flex-row items-center justify-center gap-3 mt-6">
@@ -76,6 +107,36 @@ function UserCard({
                 {following.length}
               </p>
               <p className="text-default-400 text-small">Follower</p>
+            </div>
+          </CardFooter>
+          <CardFooter className="flex flex-row items-center justify-center">
+            <div className="flex items-center justify-center">
+              {username === _username ? null : (
+                <>
+                  {follower.filter((e) => e === _username).length ? (
+                    <Button startContent={<MdDone />} disabled>
+                      Following
+                    </Button>
+                  ) : (
+                    <>
+                      {isFollowing ? (
+                        <>
+                          <Button startContent={<Spinner size="sm" />}>
+                            Following
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          startContent={<MdExposurePlus1 />}
+                          onClick={() => follow()}
+                        >
+                          Follow
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </CardFooter>
         </Card>

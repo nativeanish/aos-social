@@ -4,6 +4,7 @@ import useAccount from "../../store/useAccount";
 import useIntroField from "../../store/Onboard/useIntroField";
 import useAlertLoading from "../../store/useAlertLoading";
 import { convertSVGToBase64 } from "../svg";
+import useUser from "../../store/useUser";
 export const check_user_exits = async () => {
   const _data = await message({
     process: ID,
@@ -122,6 +123,8 @@ export const get = async () => {
       });
       useAccount.setState({ follower: _data.data.follower });
       useAccount.setState({ following: _data.data.following });
+      console.log(_data.data.notifications);
+      useAccount.setState({ notifications: _data.data.notification });
       return true;
     } else {
       return false;
@@ -147,6 +150,16 @@ export const get_user_by_username = async (username: string) => {
     });
     const _data = JSON.parse(data.Messages[0].Data);
     if (_data.status) {
+      useUser.setState({ account: true });
+      useUser.setState({ img: String(_data.data.image) });
+      useUser.setState({ name: _data.data.name });
+      useUser.setState({ username: _data.data.username });
+      useUser.setState({
+        description:
+          _data.data.description === "<empty>" ? "" : _data.data.description,
+      });
+      useUser.setState({ follower: _data.data.follower });
+      useUser.setState({ following: _data.data.following });
       return _data.data;
     } else {
       return false;
@@ -174,6 +187,33 @@ export const search = async (username: string) => {
     const _data = JSON.parse(data.Messages[0].Data);
     if (_data.status && _data.data.length) {
       return _data.data;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+export const _follow = async (username: string) => {
+  try {
+    const messages = await message({
+      process: ID,
+      signer: createDataItemSigner(window.arweaveWallet),
+      tags: [
+        { name: "Action", value: "follow" },
+        { name: "username", value: username },
+      ],
+    });
+    const data = await result({
+      process: ID,
+      message: messages,
+    });
+    console.log(data);
+    const _data = JSON.parse(data.Messages[0].Data);
+    console.log(_data);
+    if (_data.status) {
+      return true;
     } else {
       return false;
     }
