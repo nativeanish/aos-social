@@ -5,6 +5,7 @@ import Home from "./Page/Home";
 import Loading from "./Components/Template/Loading";
 import User from "./Page/User";
 import Settings from "./Page/Settings";
+// import NotFound from "./Page/NotFound";
 function App() {
   return (
     <Router>
@@ -67,3 +68,13 @@ function S_App() {
     </div>
   );
 }
+
+// function N_App() {
+//   return (
+//     <div className="flex min-h-screen min-w-screen antialiased  bg-[#06141D]">
+//       <div className="container mx-auto flex w-full flex-col items-center ">
+//         <NotFound />
+//       </div>
+//     </div>
+//   );
+// }

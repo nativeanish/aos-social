@@ -1,7 +1,7 @@
-import { Button, Tooltip } from "@nextui-org/react";
+import { Button, Spinner, Tooltip } from "@nextui-org/react";
 import img from "../image/arLogo.png";
 import arweave from "../image/arweave.svg";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { checkConnection, connect } from "../utils/arconnect";
 import useAddress from "../store/useAddress";
 import { check_user_exits } from "../utils/ao/user";
@@ -11,16 +11,30 @@ function Index() {
   const address = useAddress((state) => state.address);
   const account = useAccount((state) => state.account);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     window.addEventListener("arweaveWalletLoaded", () => {
+      setLoading(true);
       checkConnection()
-        .then()
-        .catch((err) => console.log(err));
+        .then(() => {
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     });
     if (address?.length) {
+      setLoading(true);
       check_user_exits()
-        .then((data) => console.log(data))
-        .catch((err) => console.log(err));
+        .then((data) => {
+          console.log(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
     if (address?.length && account === false) {
       navigate("/onboard");
@@ -52,7 +66,13 @@ function Index() {
                 }
                 onClick={() => connect()}
               >
-                ArConnect
+                {loading ? (
+                  <>
+                    <Spinner size="sm" /> Loading
+                  </>
+                ) : (
+                  <>ArConnect</>
+                )}
               </Button>
             </Tooltip>
             <Tooltip content="Coming Soon" color="primary" placement="bottom">

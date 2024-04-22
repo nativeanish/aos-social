@@ -5,6 +5,7 @@ import Editor from "../Editor";
 import { Pos } from "../../store/usePostStore";
 import { useEffect, useState } from "react";
 import { get_user_by_username } from "../../utils/ao/user";
+import { useNavigate } from "react-router-dom";
 interface Props {
   props: Pos;
 }
@@ -25,6 +26,8 @@ function Tweet({ props }: Props) {
       });
     }
   }, [props.username]);
+
+  const navigate = useNavigate();
   return (
     <>
       {!data ? null : (
@@ -37,7 +40,12 @@ function Tweet({ props }: Props) {
               <div>
                 <div className="mt-2 flex flex-row space-x-1">
                   <p className="text-base text-white">{data?.name}</p>
-                  <p className="text-base text-slate-400">@{props.username}</p>
+                  <p
+                    className="text-base text-blue-500 cursor-pointer"
+                    onClick={() => navigate(`/@/${props.username}`)}
+                  >
+                    @{props.username}
+                  </p>
                 </div>
                 <p className="text-sm text-slate-300">
                   {convertTimestamp(props.time)}

@@ -36,13 +36,7 @@ import { TweetNode } from "./Plugin/Twitter/TwitterNode";
 import TwitterPlugin from "./Plugin/Twitter/TwitterPlugin";
 import SaveButton from "./Toolbar/SaveButton";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
-import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  Input,
-  useDisclosure,
-} from "@nextui-org/react";
+import { Button, Input, useDisclosure } from "@nextui-org/react";
 import { comment_async, like_async } from "../../utils/ao/post";
 import useAddress from "../../store/useAddress";
 import { FcLike } from "react-icons/fc";
