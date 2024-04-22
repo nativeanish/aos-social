@@ -71,14 +71,22 @@ function Settings() {
   const descrip = () => {
     if (des?.length) {
       update_description(des)
-        .then()
+        .then((data) => {
+          if (data) {
+            navigate("/");
+          }
+        })
         .catch((err) => console.log(err));
     }
   };
   const tex = () => {
     if (text?.length) {
       update_name(text)
-        .then()
+        .then((data) => {
+          if (data) {
+            navigate("/");
+          }
+        })
         .catch((err) => console.log(err));
     }
   };
@@ -86,7 +94,11 @@ function Settings() {
   const im = () => {
     if (image?.length) {
       update_image(image)
-        .then()
+        .then((data) => {
+          if (data) {
+            navigate("/");
+          }
+        })
         .catch((err) => console.log(err));
     }
   };

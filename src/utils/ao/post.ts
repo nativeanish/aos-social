@@ -169,7 +169,7 @@ export const update_name = async (text: string) => {
   });
   const _data = JSON.parse(data.Messages[0].Data);
   if (_data.status) {
-    window.location.reload();
+    return true;
   } else {
     return false;
   }
@@ -191,7 +191,7 @@ export const update_image = async (img: string) => {
   });
   const _data = JSON.parse(data.Messages[0].Data);
   if (_data.status) {
-    window.location.reload();
+    return true;
   } else {
     return false;
   }
@@ -213,7 +213,7 @@ export const update_description = async (text: string) => {
   });
   const _data = JSON.parse(data.Messages[0].Data);
   if (_data.status) {
-    window.location.reload();
+    return true;
   } else {
     return false;
   }
