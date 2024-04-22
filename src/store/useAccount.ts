@@ -11,10 +11,10 @@ interface State {
   set_img: (e: string) => void;
   description: null | string;
   set_description: (e: string) => void;
-  follower: Array<{}>;
-  set_follower: (e: Array<{}>) => void;
-  following: Array<{}>;
-  set_following: (e: Array<{}>) => void;
+  follower: Array<string>;
+  set_follower: (e: Array<string>) => void;
+  following: Array<string>;
+  set_following: (e: Array<string>) => void;
   notifications: Array<{
     data: "follow" | "comment" | "like";
     username: string;

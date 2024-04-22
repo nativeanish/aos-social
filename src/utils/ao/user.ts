@@ -133,7 +133,26 @@ export const get = async () => {
     console.log(err);
   }
 };
-
+export const get_user_for_fol = async (username: string) => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [
+      { name: "Action", value: "get_user" },
+      { name: "username", value: username },
+    ],
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  if (_data.status) {
+    return { image: _data.data.image, name: _data.data.name };
+  } else {
+    return false;
+  }
+};
 export const get_user_by_username = async (username: string) => {
   try {
     const messages = await message({

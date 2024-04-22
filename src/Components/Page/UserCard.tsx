@@ -29,8 +29,8 @@ function UserCard({
   name: string;
   username: string;
   description: string | null;
-  following: Array<{}>;
-  follower: Array<{}>;
+  following: Array<string>;
+  follower: Array<string>;
   viewOnly?: boolean;
 }) {
   const { onClose, isOpen, onOpen, onOpenChange } = useDisclosure();
