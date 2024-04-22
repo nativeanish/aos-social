@@ -54,7 +54,7 @@ export default function NavBar() {
     }
     if (e === "logout") {
       window.arweaveWallet.disconnect().then(() => {
-        window.location.reload();
+        navigate("/");
       });
     }
   };
