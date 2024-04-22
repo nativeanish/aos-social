@@ -19,7 +19,7 @@ function User() {
   const address = useAddress((state) => state.address);
   const account = useAccount((state) => state.account);
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [_, setLoading] = useState(false);
   const u_account = useUser((state) => state.account);
   const u_username = useUser((state) => state.username);
   const u_image = useUser((state) => state.img);

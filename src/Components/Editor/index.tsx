@@ -54,7 +54,7 @@ function Editor({
   data?: string;
   like?: Array<string>;
   comment?: Array<{ username: string; data: string }>;
-  id: string;
+  id?: string;
   isComment?: boolean;
 }) {
   const { onClose, isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -177,14 +177,18 @@ function Editor({
                       {like && like.filter((e) => e === address).length ? (
                         <FcLike className="cursor-not-allowed" />
                       ) : (
-                        <FaRegHeart
-                          className="cursor-pointer"
-                          onClick={() =>
-                            like_async(id)
-                              .then()
-                              .catch((err) => console.log(err))
-                          }
-                        />
+                        <>
+                          {id ? (
+                            <FaRegHeart
+                              className="cursor-pointer"
+                              onClick={() =>
+                                like_async(id)
+                                  .then()
+                                  .catch((err) => console.log(err))
+                              }
+                            />
+                          ) : null}
+                        </>
                       )}
                     </div>
                     <div className="flex flex-row  space-x-2 items-center">
@@ -202,7 +206,7 @@ function Editor({
             </>
           )}
         </div>
-        {data?.length ? (
+        {data?.length && id?.length ? (
           <ModalLC
             onClose={onClose}
             title="Comment"

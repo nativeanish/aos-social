@@ -11,7 +11,7 @@ import {
 } from "@nextui-org/react";
 import { convertSVGToBase64 } from "../../utils/svg";
 import Modals from "../Template/Modals";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { add_description } from "../../utils/ao/post";
 import useAccount from "../../store/useAccount";
 import { MdDone, MdExposurePlus1 } from "react-icons/md";

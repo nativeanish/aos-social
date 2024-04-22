@@ -1,8 +1,4 @@
-import React, { useEffect, useState } from "react";
-
-function AvatarShow({ id }: { id: string }) {
-  const data = useState<{ username: string; image: string } | null>(null);
-  useEffect(() => {});
+function AvatarShow() {
   return <div>AvatarLike</div>;
 }
 
