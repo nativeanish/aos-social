@@ -12,10 +12,11 @@ import {
 import { convertSVGToBase64 } from "../../utils/svg";
 import Modals from "../Template/Modals";
 import { useState } from "react";
-import { add_description } from "../../utils/ao/post";
+import { update_description } from "../../utils/ao/post";
 import useAccount from "../../store/useAccount";
 import { MdDone, MdExposurePlus1 } from "react-icons/md";
 import { _follow, get_user_by_username } from "../../utils/ao/user";
+import { useNavigate } from "react-router-dom";
 function UserCard({
   image,
   name,
@@ -155,10 +156,14 @@ function UserCard({
 export default UserCard;
 function Body({ onClose }: { onClose: () => void }) {
   const [text, setText] = useState("");
+  const navigate = useNavigate();
   const update = () => {
-    add_description(text)
-      .then(() => {
-        onClose();
+    update_description(text)
+      .then((data) => {
+        if (data) {
+          onClose();
+          navigate("/");
+        }
       })
       .catch((err) => {
         console.log(err);

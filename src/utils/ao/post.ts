@@ -41,25 +41,6 @@ export const getPost = async () => {
   return _data;
 };
 
-export const add_description = async (text: string) => {
-  const messages = await message({
-    process: ID,
-    signer: createDataItemSigner(window.arweaveWallet),
-    tags: [
-      { name: "Action", value: "update" },
-      { name: "description", value: text },
-    ],
-  });
-  const data = await result({
-    process: ID,
-    message: messages,
-  });
-  const _data = JSON.parse(data.Messages[0].Data);
-  if (_data.status) {
-    await get();
-  }
-};
-
 export const like_async = async (id: string) => {
   console.log(id);
   const messages = await message({
