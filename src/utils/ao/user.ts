@@ -123,7 +123,6 @@ export const get = async () => {
       });
       useAccount.setState({ follower: _data.data.follower });
       useAccount.setState({ following: _data.data.following });
-      console.log(_data.data.notifications);
       useAccount.setState({ notifications: _data.data.notification });
       return true;
     } else {

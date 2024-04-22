@@ -22,6 +22,7 @@ import { IoMdNotifications } from "react-icons/io";
 import { RiUserFollowFill } from "react-icons/ri";
 import { FcLike } from "react-icons/fc";
 import { FaComment } from "react-icons/fa";
+import { _clear } from "../../../utils/ao/post";
 
 export default function NavBar() {
   const username = useAccount((state) => state.username);
@@ -48,11 +49,19 @@ export default function NavBar() {
     if (e === "profile") {
       navigate(`/@/${username}`);
     }
+    if (e === "setting") {
+      navigate("/setting");
+    }
     if (e === "logout") {
       window.arweaveWallet.disconnect().then(() => {
         window.location.reload();
       });
     }
+  };
+  const clear = () => {
+    _clear()
+      .then()
+      .catch((err) => console.log(err));
   };
   return (
     <Navbar
@@ -61,8 +70,6 @@ export default function NavBar() {
     >
       <NavbarContent justify="start">
         <NavbarBrand className="mr-4">
-          {/* <AcmeLogo /> */}
-          {/* <p className="hidden sm:block font-bold text-inherit">ACME</p> */}
           <div className="flex">
             <p className=" p-2 bg-black border-white border-1">AO</p>
             <p className="bg-white text-black p-2">social</p>
@@ -88,7 +95,13 @@ export default function NavBar() {
             name="params"
           />
         </form>
-        <div className="flex items-center" onClick={() => data.onOpen()}>
+        <div
+          className="flex items-center"
+          onClick={() => {
+            data.onOpen();
+            clear();
+          }}
+        >
           <div className="cursor-pointer">
             <Badge
               content={notification.filter((e) => e.seen === false).length}
@@ -128,7 +141,7 @@ export default function NavBar() {
             <DropdownItem key="profile" color="primary">
               My Profile
             </DropdownItem>
-            <DropdownItem key="settings" color="primary">
+            <DropdownItem key="setting" color="primary">
               My Settings
             </DropdownItem>
             <DropdownItem key="logout" color="danger">

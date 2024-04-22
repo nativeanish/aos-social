@@ -65,6 +65,7 @@ local function Get_key_from_username(username)
         end
     end
 end
+
 local function Check(data)
     if data == nil then
         return Preprocess_data(data)
@@ -72,6 +73,17 @@ local function Check(data)
         return data
     end
 end
+
+local function Concat(f_post, post)
+    if post ~= nil then
+        for key, value in pairs(post) do
+            table.insert(f_post
+            , value)
+        end
+    end
+    return f_post
+end
+
 Handlers.add('check_user_exist', Handlers.utils.hasMatchingTag("Action", "check_user_exist"), function(msg)
     local json = require('json')
     if Users[msg.From] ~= nil then
@@ -110,7 +122,6 @@ Handlers.add('check_username', Handlers.utils.hasMatchingTag("Action", "check_us
     local result = string.format(json.encode({ status = 0, data = "Username not Registered" }))
     Handlers.utils.reply(result)(msg)
 end)
-
 
 Handlers.add('register_user', Handlers.utils.hasMatchingTag("Action", "register_user"), function(msg)
     local json = require('json')
@@ -240,11 +251,22 @@ Handlers.add("get_post", Handlers.utils.hasMatchingTag("Action", "get_post"), fu
         Handlers.utils.reply(result)(msg)
         return
     end
+    local f_Post = {}
     local posts = utils.filter(function(val)
         return val.owner == msg.From
     end, Post)
-    if posts ~= "[]" then
-        local result = string.format(json.encode({ status = 1, data = posts }))
+    f_Post = Concat(f_Post, posts)
+    local following = Users[msg.From].following
+    if following ~= nil then
+        for key, value in pairs(following) do
+            local osts = utils.filter(function(val)
+                return val.username == value
+            end, Post)
+            f_Post = Concat(f_Post, osts)
+        end
+    end
+    if f_Post ~= "[]" then
+        local result = string.format(json.encode({ status = 1, data = f_Post }))
         Handlers.utils.reply(result)(msg)
         return
     else
@@ -299,7 +321,8 @@ Handlers.add("like", Handlers.utils.hasMatchingTag("Action", "like"), function(m
             return
         end
         table.insert(posts[1].like, msg.From)
-        table.insert(Users[posts[1].owner].notification, { data = "like", username = Users[msg.From].username, seen = false })
+        table.insert(Users[posts[1].owner].notification,
+            { data = "like", username = Users[msg.From].username, seen = false })
         local result = string.format(json.encode({ status = 1, data = "Post Liked" }))
         Handlers.utils.reply(result)(msg)
         return
@@ -344,19 +367,21 @@ Handlers.add("update", Handlers.utils.hasMatchingTag("Action", "update"), functi
         Handlers.utils.reply(result)(msg)
         return
     end
+    assert(type(msg.Tags.field) == "string", "field is missing")
     local user = Users[msg.From]
-    if (msg.Tags.username ~= nil) then
-        user.username = msg.Tags.username
-    end
-    if (msg.Tags.name ~= nil) then
+    if (msg.Tags.name ~= nil and msg.Tags.field == "name") then
         user.name = msg.Tags.name
     end
-    if (msg.Tags.description ~= nil) then
+    if (msg.Tags.description ~= nil and msg.Tags.field == "description") then
         user.description = msg.Tags.description
+    end
+    if (msg.Data ~= nil and msg.Tags.field == "image") then
+        user.image = msg.Data
     end
     local result = string.format(json.encode({ status = 1, data = "Account Updated" }))
     Handlers.utils.reply(result)(msg)
 end)
+
 Handlers.add("follow", Handlers.utils.hasMatchingTag("Action", "follow"), function(msg)
     local json = require("json")
     if (Users[msg.From] == nil) then
@@ -422,4 +447,28 @@ Handlers.add("search", Handlers.utils.hasMatchingTag("Action", "search"), functi
     end
     local result = string.format(json.encode({ status = 0, data = "No User" }))
     Handlers.utils.reply(result)(msg)
+end)
+
+Handlers.add("clear", Handlers.utils.hasMatchingTag("Action", "clear"), function(msg)
+    local json = require("json")
+    if (Users[msg.From] == nil) then
+        local result = string.format(json.encode({ status = 0, data = "Account is not Register" }))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
+    local user = Users[msg.From]
+    if user.notification ~= nil then
+        local utils = require(".utils")
+        local noti = utils.map(function(val)
+            return {
+                data = val.data,
+                username = val.username,
+                seen = true
+            }
+        end, user.notification)
+        user.notification = noti
+        local result = string.format(json.encode({ status = 1, data = "Cleared" }))
+        Handlers.utils.reply(result)(msg)
+        return
+    end
 end)

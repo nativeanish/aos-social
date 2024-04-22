@@ -32,6 +32,7 @@ export const getPost = async () => {
     process: ID,
     message: messages,
   });
+  console.log(data);
   const _data = JSON.parse(data.Messages[0].Data);
   console.log(_data);
   if (_data.status) {
@@ -129,6 +130,91 @@ export const get_post_username = async (username: string) => {
     }
   } catch (err) {
     console.log(err);
+    return false;
+  }
+};
+
+export const _clear = async () => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [{ name: "Action", value: "clear" }],
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  if (_data.status) {
+    await get();
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const update_name = async (text: string) => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [
+      { name: "Action", value: "update" },
+      { name: "field", value: "name" },
+      { name: "name", value: text },
+    ],
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  if (_data.status) {
+    window.location.reload();
+  } else {
+    return false;
+  }
+};
+
+export const update_image = async (img: string) => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [
+      { name: "Action", value: "update" },
+      { name: "field", value: "image" },
+    ],
+    data: img,
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  if (_data.status) {
+    window.location.reload();
+  } else {
+    return false;
+  }
+};
+
+export const update_description = async (text: string) => {
+  const messages = await message({
+    process: ID,
+    signer: createDataItemSigner(window.arweaveWallet),
+    tags: [
+      { name: "Action", value: "update" },
+      { name: "field", value: "description" },
+      { name: "description", value: text },
+    ],
+  });
+  const data = await result({
+    process: ID,
+    message: messages,
+  });
+  const _data = JSON.parse(data.Messages[0].Data);
+  if (_data.status) {
+    window.location.reload();
+  } else {
     return false;
   }
 };

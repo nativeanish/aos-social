@@ -4,6 +4,7 @@ import OnBoard from "./Page/Onboard";
 import Home from "./Page/Home";
 import Loading from "./Components/Template/Loading";
 import User from "./Page/User";
+import Settings from "./Page/Settings";
 function App() {
   return (
     <Router>
@@ -18,6 +19,7 @@ function App() {
         />
         <Route path="/onboard" element={<OnBoard />} />
         <Route path="/home" element={<H_App />} />
+        <Route path="/setting" element={<S_App />} />
         <Route path="/@/:username" element={<U_App />} />
       </Routes>
       <Loading />
@@ -51,6 +53,16 @@ function U_App() {
     <div className="flex min-h-screen min-w-screen antialiased  bg-[#06141D]">
       <div className="container mx-auto flex w-full flex-col items-center ">
         <User />
+      </div>
+    </div>
+  );
+}
+
+function S_App() {
+  return (
+    <div className="flex min-h-screen min-w-screen antialiased  bg-[#06141D]">
+      <div className="container mx-auto flex w-full flex-col items-center ">
+        <Settings />
       </div>
     </div>
   );
