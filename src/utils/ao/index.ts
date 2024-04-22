@@ -1,2 +1,2 @@
-//AOS so8
-export const ID = "ijvr8aUFLag0lX8GTh243yrCGdTkOMK7-xhC6oJRa_c";
+//AOS mark1
+export const ID = "UJ8HHCAAUlkiqdF3w3fDJ058p65u5wm0tJJKjUEhXnA";
